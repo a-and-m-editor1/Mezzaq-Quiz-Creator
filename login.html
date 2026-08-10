@@ -3,38 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome - Mezzaq Quiz Creator</title>
+  <title>Login - Mezzaq Quiz Creator</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-color: #0b192c;
+      color: #f8fafc;
       display: flex; justify-content: center; align-items: center;
-      height: 100vh; margin: 0;
+      height: 100vh; margin: 0; padding: 20px;
     }
     .auth-card {
-      background: white; max-width: 400px; width: 100%;
-      padding: 40px 30px; border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      background: #1e293b; max-width: 400px; width: 100%;
+      padding: 40px 30px; border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155;
     }
-    h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; font-size: 28px; }
+    h2 { text-align: center; color: #f8fafc; margin-top: 0; margin-bottom: 25px; font-size: 26px; }
     .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
-    input {
-      width: 100%; padding: 12px; border: 1px solid #ddd;
-      border-radius: 8px; font-size: 15px; background: #f9f9f9;
-      transition: border 0.3s;
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #94a3b8; font-size: 14px; }
+    input[type="email"], input[type="password"] {
+      width: 100%; padding: 12px 16px; border: 1px solid #334155;
+      border-radius: 10px; font-size: 15px; background: #0f172a; color: #fff;
+      transition: all 0.3s ease;
     }
-    input:focus { outline: none; border-color: #667eea; background: #fff; }
+    input:focus { outline: none; border-color: #38bdf8; }
     .main-btn {
-      width: 100%; padding: 14px; background: #667eea; color: white;
-      border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+      width: 100%; padding: 14px; background: #3b82f6; color: white;
+      border: none; border-radius: 10px; font-size: 16px; font-weight: bold;
       cursor: pointer; transition: background 0.3s; margin-top: 10px;
     }
-    .main-btn:hover { background: #5a6fd6; }
-    .toggle-text {
-      text-align: center; margin-top: 20px; font-size: 14px; color: #666;
-    }
-    .toggle-text span { color: #667eea; font-weight: bold; cursor: pointer; }
+    .main-btn:hover { background: #2563eb; }
+    .toggle-text { text-align: center; margin-top: 20px; font-size: 14px; color: #94a3b8; }
+    .toggle-text span { color: #38bdf8; font-weight: bold; cursor: pointer; }
     .toggle-text span:hover { text-decoration: underline; }
   </style>
 </head>
@@ -42,19 +41,15 @@
 
 <div class="auth-card">
   <h2 id="form-title">Log In</h2>
-
   <div class="form-group">
     <label for="email">Email</label>
     <input type="email" id="email" placeholder="Enter your email">
   </div>
-  
   <div class="form-group">
     <label for="password">Password</label>
     <input type="password" id="password" placeholder="Enter your password">
   </div>
-
   <button class="main-btn" id="submit-btn" onclick="processAuth()">Log In</button>
-  
   <div class="toggle-text" id="toggle-container">
     Don't have an account? <span onclick="toggleMode()">Sign Up</span>
   </div>
@@ -81,44 +76,28 @@
       return;
     }
 
-    // Retrieve saved users dictionary from local storage
     let users = JSON.parse(localStorage.getItem('quiz_registered_users')) || {};
 
     if (isSignUpMode) {
-      // SIGN UP LOGIC
       if (users[email]) {
-        alert('An account with this email already exists! Please Log In instead.');
+        alert('An account with this email already exists! Please log in.');
         return;
       }
-
-      // Create new account entry
       users[email] = { password: password };
       localStorage.setItem('quiz_registered_users', JSON.stringify(users));
-
-      // Set current session
       localStorage.setItem('quiz_user', JSON.stringify({ email: email, loggedIn: true }));
-      alert('Account created successfully!');
       window.location.href = 'index.html';
-
     } else {
-      // LOG IN LOGIC
-      if (!users[email]) {
-        alert('No account found with this email. Please Sign Up first!');
+      if (!users[email] || users[email].password !== password) {
+        alert('Invalid email or password. Please sign up if you do not have an account.');
         return;
       }
-
-      if (users[email].password !== password) {
-        alert('Incorrect password. Please try again.');
-        return;
-      }
-
-      // Successful login -> set current session
       localStorage.setItem('quiz_user', JSON.stringify({ email: email, loggedIn: true }));
       window.location.href = 'index.html';
     }
   }
 
-  // Redirect if session is already active
+  // Redirect to index.html if already logged in
   window.onload = function() {
     const user = JSON.parse(localStorage.getItem('quiz_user'));
     if (user && user.loggedIn) {
@@ -126,5 +105,6 @@
     }
   };
 </script>
+
 </body>
 </html>
