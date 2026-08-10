@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mezzaq Quiz Creator</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px 15px; margin: 0; }
+    .container { background: white; max-width: 650px; width: 100%; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    /* ACCOUNT BAR AT TOP */
+    .account-bar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px; padding: 15px 20px; display: flex;
+      justify-content: space-between; align-items: center;
+      color: white; margin-bottom: 20px;
+    }
+    .account-info { font-size: 16px; font-weight: 600; word-break: break-all; }
+    
+    .logout-btn {
+      background: rgba(255,255,255,0.2); color: white; border: none;
+      padding: 8px 14px; border-radius: 6px; font-weight: bold;
+      cursor: pointer; transition: background 0.3s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.4); }
+
+    /* GENERAL UI */
+    h1 { text-align: center; color: #333; margin-top: 0; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; color: #444; }
+    input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+    
+    button.primary-btn, button.save-btn, button.check-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 6px;
+      font-size: 16px; font-weight: bold; cursor: pointer; color: white;
+    }
+    button.primary-btn { background: #28a745; margin-top: 5px; }
+    button.save-btn { background: #007bff; font-size: 18px; margin-top: 20px; padding: 14px; }
+    button.check-btn { width: auto; background: #28a745; padding: 10px 15px; }
+    button.clear-btn { background: #dc3545; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+    button.edit-btn { background: #6c757d; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 15px; }
+    
+    .count-badge { background: #e9ecef; padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; color: #495057; margin-top: 15px; }
+    .quiz-card { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 18px; margin-bottom: 15px; }
+    .input-row { display: flex; gap: 10px; margin-top: 10px; }
+    .feedback-msg { margin-top: 10px; font-size: 15px; font-weight: bold; }
+    .quiz-a { font-size: 14px; color: #555; margin-top: 5px; display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- ACCOUNT HEADER BAR -->
+  <div class="account-bar">
+    <div id="display-email" class="account-info">Logged in as: User Email</div>
+    <button class="logout-btn" onclick="logout()">Log Out</button>
+  </div>
+
+  <h1>Quiz Creator</h1>
+
+  <!-- CREATE SECTION -->
+  <div id="create-section" class="section active">
+    <div class="form-group">
+      <label for="question">Question</label>
+      <input type="text" id="question" placeholder="Enter question here...">
+    </div>
+    <div class="form-group">
+      <label for="answer">Answer</label>
+      <input type="text" id="answer" placeholder="Enter answer here...">
+    </div>
+    <button class="primary-btn" onclick="addQuestion()">Add Question</button>
+
+    <div class="count-badge" id="question-count">Questions Saved: 0</div>
+
+    <button class="save-btn" onclick="saveAndGoToQuiz()">Play Quiz</button>
+    <button class="clear-btn" onclick="clearAllData()">Clear All Saved Data</button>
+  </div>
+
+  <!-- QUIZ SECTION -->
+  <div id="quiz-section" class="section">
+    <button class="edit-btn" onclick="goBackToCreate()">← Back to Question Creator</button>
+    <div id="full-quiz-container"></div>
+  </div>
+</div>
+
+<script>
+  let currentUser = JSON.parse(localStorage.getItem('quiz_user'));
+  let questions = [];
+
+  // Check authentication & load user questions
+  function initPage() {
+    if (!currentUser || !currentUser.loggedIn) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    document.getElementById('display-email').innerText = `Logged in as: ${currentUser.email}`;
+    
+    // Load account-specific questions
+    const storageKey = `quiz_questions_${currentUser.email}`;
+    questions = JSON.parse(localStorage.getItem(storageKey)) || [];
+    updateCount();
+  }
+
+  function logout() {
+    localStorage.removeItem('quiz_user');
+    window.location.href = 'login.html';
+  }
+
+  function addQuestion() {
+    const q = document.getElementById('question').value.trim();
+    const a = document.getElementById('answer').value.trim();
+
+    if (!q || !a) {
+      alert('Please fill out both Question and Answer!');
+      return;
+    }
+
+    questions.push({ q, a });
+    const storageKey = `quiz_questions_${currentUser.email}`;
+    localStorage.setItem(storageKey, JSON.stringify(questions));
+
+    document.getElementById('question').value = '';
+    document.getElementById('answer').value = '';
+    updateCount();
+    document.getElementById('question').focus();
+  }
+
+  function updateCount() {
+    document.getElementById('question-count').innerText = `Questions Saved: ${questions.length}`;
+  }
+
+  function clearAllData() {
+    if (confirm('Delete all your saved questions?')) {
+      const storageKey = `quiz_questions_${currentUser.email}`;
+      localStorage.removeItem(storageKey);
+      questions = [];
+      updateCount();
+    }
+  }
+
+  function saveAndGoToQuiz() {
+    if (questions.length === 0) {
+      alert('Please add at least one question first!');
+      return;
+    }
+    document.getElementById('create-section').classList.remove('active');
+    document.getElementById('quiz-section').classList.add('active');
+    buildQuiz();
+  }
+
+  function goBackToCreate() {
+    document.getElementById('quiz-section').classList.remove('active');
+    document.getElementById('create-section').classList.add('active');
+  }
+
+  function buildQuiz() {
+    const container = document.getElementById('full-quiz-container');
+    container.innerHTML = '';
+    questions.forEach((item, i) => {
+      const card = document.createElement('div');
+      card.className = 'quiz-card';
+      card.innerHTML = `
+        <div style="font-weight:bold;font-size:16px;color:#333;">Q${i + 1}: ${item.q}</div>
+        <div class="input-row">
+          <input type="text" id="quiz-input-${i}" placeholder="Type your answer..." onkeydown="if(event.key==='Enter') checkAnswer(${i})">
+          <button class="check-btn" onclick="checkAnswer(${i})">Check</button>
+        </div>
+        <div id="feedback-${i}" class="feedback-msg"></div>
+        <div id="answer-${i}" class="quiz-a">Correct answer: ${item.a}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function checkAnswer(i) {
+    const userInput = document.getElementById(`quiz-input-${i}`).value.trim();
+    const feedback = document.getElementById(`feedback-${i}`);
+    const answerElem = document.getElementById(`answer-${i}`);
+
+    if (!userInput) return;
+
+    if (userInput.toLowerCase() === questions[i].a.toLowerCase()) {
+      feedback.innerText = "Correct! 🎉";
+      feedback.style.color = "#28a745";
+      answerElem.style.display = "none";
+    } else {
+      feedback.innerText = "Incorrect! ❌";
+      feedback.style.color = "#dc3545";
+      answerElem.style.display = "block";
+    }
+  }
+
+  initPage();
+</script>
+
+</body>
+</html>

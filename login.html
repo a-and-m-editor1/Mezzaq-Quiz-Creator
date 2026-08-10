@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome - Mezzaq Quiz Creator</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh; margin: 0;
+    }
+    .auth-card {
+      background: white; max-width: 400px; width: 100%;
+      padding: 40px 30px; border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; font-size: 28px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
+    input {
+      width: 100%; padding: 12px; border: 1px solid #ddd;
+      border-radius: 8px; font-size: 15px; background: #f9f9f9;
+      transition: border 0.3s;
+    }
+    input:focus { outline: none; border-color: #667eea; background: #fff; }
+    .main-btn {
+      width: 100%; padding: 14px; background: #667eea; color: white;
+      border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+      cursor: pointer; transition: background 0.3s; margin-top: 10px;
+    }
+    .main-btn:hover { background: #5a6fd6; }
+    .toggle-text {
+      text-align: center; margin-top: 20px; font-size: 14px; color: #666;
+    }
+    .toggle-text span { color: #667eea; font-weight: bold; cursor: pointer; }
+    .toggle-text span:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="auth-card">
+  <h2 id="form-title">Log In</h2>
+
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="Enter your email">
+  </div>
+  
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter your password">
+  </div>
+
+  <button class="main-btn" id="submit-btn" onclick="processAuth()">Log In</button>
+  
+  <div class="toggle-text" id="toggle-container">
+    Don't have an account? <span onclick="toggleMode()">Sign Up</span>
+  </div>
+</div>
+
+<script>
+  let isSignUpMode = false;
+
+  function toggleMode() {
+    isSignUpMode = !isSignUpMode;
+    document.getElementById('form-title').innerText = isSignUpMode ? "Sign Up" : "Log In";
+    document.getElementById('submit-btn').innerText = isSignUpMode ? "Sign Up" : "Log In";
+    document.getElementById('toggle-container').innerHTML = isSignUpMode 
+      ? `Already have an account? <span onclick="toggleMode()">Log In</span>`
+      : `Don't have an account? <span onclick="toggleMode()">Sign Up</span>`;
+  }
+
+  function processAuth() {
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value.trim();
+
+    if (!email || !password) {
+      alert('Please fill out both email and password.');
+      return;
+    }
+
+    // Retrieve saved users dictionary from local storage
+    let users = JSON.parse(localStorage.getItem('quiz_registered_users')) || {};
+
+    if (isSignUpMode) {
+      // SIGN UP LOGIC
+      if (users[email]) {
+        alert('An account with this email already exists! Please Log In instead.');
+        return;
+      }
+
+      // Create new account entry
+      users[email] = { password: password };
+      localStorage.setItem('quiz_registered_users', JSON.stringify(users));
+
+      // Set current session
+      localStorage.setItem('quiz_user', JSON.stringify({ email: email, loggedIn: true }));
+      alert('Account created successfully!');
+      window.location.href = 'index.html';
+
+    } else {
+      // LOG IN LOGIC
+      if (!users[email]) {
+        alert('No account found with this email. Please Sign Up first!');
+        return;
+      }
+
+      if (users[email].password !== password) {
+        alert('Incorrect password. Please try again.');
+        return;
+      }
+
+      // Successful login -> set current session
+      localStorage.setItem('quiz_user', JSON.stringify({ email: email, loggedIn: true }));
+      window.location.href = 'index.html';
+    }
+  }
+
+  // Redirect if session is already active
+  window.onload = function() {
+    const user = JSON.parse(localStorage.getItem('quiz_user'));
+    if (user && user.loggedIn) {
+      window.location.href = 'index.html';
+    }
+  };
+</script>
+</body>
+</html>
