@@ -9,73 +9,86 @@
     body {
       background-color: #0b192c;
       color: #f8fafc;
+      margin: 0; padding: 25px;
       display: flex; justify-content: center;
-      padding: 30px 15px; margin: 0;
     }
-    .container { max-width: 750px; width: 100%; }
+    .main-wrapper { max-width: 1000px; width: 100%; }
 
-    /* TOP BAR */
+    /* TOP BAR & QUISCOINS WALLET */
     .account-bar {
       background: #1e293b; border: 1px solid #334155;
       border-radius: 12px; padding: 16px 20px; display: flex;
       justify-content: space-between; align-items: center; margin-bottom: 25px;
     }
-    .account-info { font-size: 15px; font-weight: 600; color: #94a3b8; }
+    .account-info { font-size: 15px; font-weight: 600; color: #94a3b8; display: flex; align-items: center; gap: 15px; }
+    .coin-badge { background: #0f172a; border: 1px solid #eab308; color: #eab308; padding: 6px 12px; border-radius: 20px; font-weight: bold; }
     .logout-btn {
       background: #ef4444; color: white; border: none;
       padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;
     }
 
-    /* SECTIONS */
-    .section { display: none; }
-    .section.active { display: block; }
-
-    /* EDIT FORM CARDS */
+    /* CENTER CREATOR SETUP CARD */
+    .creator-container {
+      max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;
+    }
     .form-card {
       background: #1e293b; border: 1px solid #334155;
-      border-radius: 16px; padding: 24px; margin-bottom: 20px;
-    }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 6px; font-weight: 600; color: #cbd5e1; font-size: 14px; }
-    input[type="text"] {
-      width: 100%; padding: 12px; border: 1px solid #334155;
-      border-radius: 8px; font-size: 15px; background: #0f172a; color: #fff;
-    }
-    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-
-    button.primary-btn {
-      width: 100%; padding: 14px; background: #22c55e; color: white;
-      border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;
-    }
-    button.save-btn {
-      width: 100%; padding: 14px; background: #3b82f6; color: white;
-      border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;
-    }
-    button.clear-btn {
-      background: transparent; color: #ef4444; border: 1px solid #ef4444;
-      padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px;
-    }
-    button.edit-btn {
-      background: #334155; color: white; border: none; padding: 10px 18px;
-      border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 20px;
-    }
-    .count-badge {
-      background: #0f172a; border: 1px solid #334155; padding: 12px;
-      border-radius: 8px; text-align: center; font-weight: 600; color: #94a3b8; margin-top: 15px;
+      border-radius: 16px; padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
 
-    /* QUIZ SCORE BAR */
-    .score-summary {
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; color: #cbd5e1; font-size: 13px; }
+    input[type="text"], textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #334155;
+      border-radius: 8px; font-size: 14px; background: #0f172a; color: #fff;
+    }
+    textarea { resize: vertical; min-height: 65px; }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    /* ITEM LISTS */
+    .list-item {
+      display: flex; justify-content: space-between; align-items: center;
       background: #0f172a; border: 1px solid #334155;
-      border-radius: 12px; padding: 14px 20px; font-size: 16px;
-      font-weight: 600; color: #38bdf8; text-align: center; margin-bottom: 20px;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .list-item:hover { border-color: #38bdf8; }
+    .list-item.active { border-color: #22c55e; background: #0d281e; }
+    .item-title { font-weight: 600; color: #f8fafc; font-size: 14px; }
+    .delete-btn { background: transparent; color: #ef4444; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+
+    /* BUTTON STYLES */
+    button.primary-btn { width: 100%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+    button.blue-btn { width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+    button.start-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); }
+    button.back-btn { background: #334155; color: #f8fafc; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+
+    /* EXPLANATION BUTTON & BOX STYLES */
+    .explanation-btn {
+      background: #0284c7; color: #fff; border: none;
+      padding: 10px 16px; border-radius: 8px; font-weight: bold;
+      cursor: pointer; font-size: 13px; margin-top: 10px; display: none;
+      transition: background 0.2s;
+    }
+    .explanation-btn:hover { background: #0369a1; }
+    .explanation-box {
+      background: #0f172a; border: 1px solid #0284c7;
+      border-radius: 10px; padding: 14px; margin-top: 10px;
+      font-size: 14px; color: #e0f2fe; display: none; line-height: 1.5;
     }
 
-    /* QUIZ CARD UI */
+    /* PLAY MODE QUIZ DISPLAY */
+    .score-summary {
+      background: #1e293b; border: 1px solid #334155;
+      border-radius: 12px; padding: 16px 20px; font-size: 18px;
+      font-weight: 600; color: #38bdf8; text-align: center; margin-bottom: 25px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
     .quiz-card {
       background: #1e2d42; border: 1px solid #2d3f56;
       border-radius: 16px; padding: 24px; margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); position: relative;
     }
     .quiz-header { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 20px; }
     .q-number {
@@ -93,19 +106,12 @@
       border-radius: 10px; padding: 14px 18px; margin-bottom: 12px;
       color: #f8fafc; font-size: 15px; cursor: pointer; position: relative;
     }
-    .radio-circle {
-      width: 18px; height: 18px; border: 2px solid #64748b;
-      border-radius: 50%; margin-right: 14px; flex-shrink: 0;
-    }
+    .radio-circle { width: 18px; height: 18px; border: 2px solid #64748b; border-radius: 50%; margin-right: 14px; flex-shrink: 0; }
     .option-btn.selected { background: #0d4336; border: 2px solid #22c55e; }
-    .option-btn.selected .radio-circle {
-      border-color: #22c55e; background: radial-gradient(circle, #22c55e 40%, transparent 50%);
-    }
-    .check-icon {
-      margin-left: auto; width: 18px; height: 18px; border-radius: 50%;
-      border: 1px solid #22c55e; color: #22c55e; display: flex;
-      align-items: center; justify-content: center; font-size: 11px;
-    }
+    .option-btn.selected .radio-circle { border-color: #22c55e; background: radial-gradient(circle, #22c55e 40%, transparent 50%); }
+    .check-icon { margin-left: auto; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #22c55e; color: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+    .edit-item-card { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
   </style>
 
   <!-- Firebase Compatibility SDKs -->
@@ -115,54 +121,100 @@
 </head>
 <body>
 
-<div class="container">
+<div class="main-wrapper">
 
-  <!-- ACCOUNT BAR -->
+  <!-- TOP BAR & WALLET -->
   <div class="account-bar">
     <div id="display-email" class="account-info">Connecting to Firebase...</div>
+    <div class="coin-badge">🪙 <span id="quiscoins-count">0</span> QuisCoins</div>
     <button class="logout-btn" onclick="logout()">Log Out</button>
   </div>
 
-  <!-- CREATE SECTION -->
-  <div id="create-section" class="section active">
+  <!-- SCREEN 1: CREATOR & SETUP SECTION (CENTERED) -->
+  <div id="creator-screen" class="creator-container">
+    
+    <!-- STEP 1: CREATE / SELECT FOLDER -->
     <div class="form-card">
-      <h2 style="margin-top:0;">Create Question</h2>
+      <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 18px; text-align: center;">📁 Select or Create a Folder</h3>
+      <div class="form-group">
+        <input type="text" id="folder-name-input" placeholder="New Folder Name (e.g., Math)">
+      </div>
+      <button class="blue-btn" onclick="createFolder()">+ Create Folder</button>
+      <div id="folders-list" style="margin-top: 12px;"></div>
+    </div>
+
+    <!-- STEP 2: CREATE / SELECT QUIZ -->
+    <div class="form-card" id="quiz-creator-card" style="display: none;">
+      <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 18px; text-align: center;" id="folder-section-title">📝 Select or Create a Quiz</h3>
+      <div class="form-group">
+        <input type="text" id="quiz-name-input" placeholder="Quiz Title (e.g., Algebra Quiz 1)">
+      </div>
+      <button class="blue-btn" onclick="createQuiz()">+ Add New Quiz To This Folder</button>
+      <div id="quizzes-list" style="margin-top: 12px;"></div>
+    </div>
+
+    <!-- STEP 3: ADD QUESTION TO QUIZ -->
+    <div class="form-card" id="question-creator-card" style="display: none;">
+      <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 18px; text-align: center;" id="current-quiz-title">Add Questions to Quiz</h3>
+      
       <div class="form-group">
         <label>Question Text</label>
-        <input type="text" id="question" placeholder="Enter your question here...">
+        <input type="text" id="question" placeholder="Enter question...">
       </div>
       
-      <label>Multiple Choice Options</label>
+      <label>Options</label>
       <div class="options-grid">
-        <input type="text" id="opt-a" placeholder="A) Option 1">
-        <input type="text" id="opt-b" placeholder="B) Option 2">
-        <input type="text" id="opt-c" placeholder="C) Option 3">
-        <input type="text" id="opt-d" placeholder="D) Option 4">
+        <input type="text" id="opt-a" placeholder="A) Choice 1">
+        <input type="text" id="opt-b" placeholder="B) Choice 2">
+        <input type="text" id="opt-c" placeholder="C) Choice 3">
+        <input type="text" id="opt-d" placeholder="D) Choice 4">
       </div>
 
       <div class="form-group">
-        <label>Correct Choice Letter (A, B, C, or D)</label>
+        <label>Correct Choice Letter (Must be A, B, C, or D)</label>
         <input type="text" id="correct-opt" placeholder="e.g. B">
       </div>
 
-      <button class="primary-btn" onclick="addQuestion()">Add Question</button>
-      <div class="count-badge" id="question-count">Questions Saved: 0</div>
-      <button class="save-btn" onclick="saveAndGoToQuiz()">Preview Quiz</button>
-      <button class="clear-btn" onclick="clearAllData()">Clear Saved Questions</button>
+      <div class="form-group">
+        <label>Explanation (Optional)</label>
+        <textarea id="explanation" placeholder="Type explanation for the correct answer..."></textarea>
+      </div>
+
+      <button class="primary-btn" onclick="addQuestionToQuiz()">Save Question</button>
+
+      <!-- LET'S GET STARTED BUTTON -->
+      <div style="margin-top: 25px;">
+        <button class="start-btn" onclick="startQuizMode()">🚀 Let's Get Started !</button>
+      </div>
     </div>
+
+    <!-- STEP 4: EDIT QUIZ SECTION -->
+    <div class="form-card" id="quiz-edit-card" style="display: none;">
+      <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; text-align: center;">✏️ Edit Current Quiz</h3>
+      <div class="form-group">
+        <label>Edit Quiz Title</label>
+        <input type="text" id="edit-quiz-title-input">
+        <button class="blue-btn" style="margin-top: 8px;" onclick="saveQuizTitle()">Save New Title</button>
+      </div>
+      <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
+      <div id="edit-questions-container"></div>
+    </div>
+
   </div>
 
-  <!-- QUIZ PREVIEW SECTION -->
-  <div id="quiz-section" class="section">
-    <button class="edit-btn" onclick="goBackToCreate()">← Back to Question Creator</button>
-    <div class="score-summary" id="score-header">Total Score: 0 / 0 pts</div>
+  <!-- SCREEN 2: ACTIVE QUIZ PLAY MODE -->
+  <div id="quiz-play-screen" style="display: none;">
+    <div class="score-summary">
+      <button class="back-btn" onclick="returnToCreator()">⚙️ Creator Dashboard</button>
+      <span id="score-text">Score: 0 / 0 pts</span>
+    </div>
+
     <div id="full-quiz-container"></div>
   </div>
 
 </div>
 
 <script>
-  // Your Exact Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyBKuPKg3YuMzqw0cMAzTtUbeZERbY4UCNM",
     authDomain: "mezzaq-79803.firebaseapp.com",
@@ -179,8 +231,11 @@
   const db = firebase.database();
 
   let currentUser = null;
-  let questions = [];
+  let folders = {};
+  let activeFolderId = null;
+  let activeQuizId = null;
   let userScore = 0;
+  let userQuisCoins = 0;
 
   auth.onAuthStateChanged(user => {
     if (!user) {
@@ -189,109 +244,369 @@
     }
     currentUser = user;
     document.getElementById('display-email').innerText = `Logged in as: ${user.email}`;
-    loadQuestionsFromFirebase();
+    loadUserData();
+    ensureDefaultNoFolder();
   });
 
   function logout() {
-    auth.signOut().then(() => {
-      window.location.href = 'login.html';
+    auth.signOut().then(() => window.location.href = 'login.html');
+  }
+
+  function loadUserData() {
+    db.ref(`users/${currentUser.uid}/quiscoins`).on('value', snapshot => {
+      userQuisCoins = snapshot.val() || 0;
+      document.getElementById('quiscoins-count').innerText = userQuisCoins;
     });
   }
 
-  function loadQuestionsFromFirebase() {
-    db.ref(`users/${currentUser.uid}/questions`).on('value', snapshot => {
-      const data = snapshot.val();
-      questions = data ? Object.values(data) : [];
-      updateCount();
+  function addQuisCoins(amount) {
+    userQuisCoins += amount;
+    db.ref(`users/${currentUser.uid}/quiscoins`).set(userQuisCoins);
+  }
+
+  function ensureDefaultNoFolder() {
+    const foldersRef = db.ref(`users/${currentUser.uid}/folders`);
+    foldersRef.once('value', snapshot => {
+      const data = snapshot.val() || {};
+      let hasNoFolder = false;
+
+      Object.keys(data).forEach(id => {
+        if (data[id].isPermanent || data[id].name === "No Folder") {
+          hasNoFolder = true;
+        }
+      });
+
+      if (!hasNoFolder) {
+        db.ref(`users/${currentUser.uid}/folders/no_folder_default`).set({
+          name: "No Folder",
+          isPermanent: true,
+          quizzes: {}
+        }).then(() => loadFoldersFromFirebase());
+      } else {
+        loadFoldersFromFirebase();
+      }
     });
   }
 
-  function addQuestion() {
+  function loadFoldersFromFirebase() {
+    db.ref(`users/${currentUser.uid}/folders`).on('value', snapshot => {
+      folders = snapshot.val() || {};
+      renderFoldersList();
+      
+      if (activeFolderId && folders[activeFolderId]) {
+        renderQuizzesList();
+        if (activeQuizId && folders[activeFolderId].quizzes && folders[activeFolderId].quizzes[activeQuizId]) {
+          renderEditQuestions();
+        }
+      } else {
+        activeFolderId = null;
+        activeQuizId = null;
+        document.getElementById('quiz-creator-card').style.display = 'none';
+        document.getElementById('question-creator-card').style.display = 'none';
+        document.getElementById('quiz-edit-card').style.display = 'none';
+      }
+    });
+  }
+
+  /* --- 1. FOLDER MANAGEMENT --- */
+  function createFolder() {
+    const name = document.getElementById('folder-name-input').value.trim();
+    if (!name) return alert('Enter a folder name!');
+    if (name.toLowerCase() === "no folder") return alert('Reserved name! "No Folder" already exists.');
+
+    const ref = db.ref(`users/${currentUser.uid}/folders`).push();
+    ref.set({ name, quizzes: {} }).then(() => {
+      document.getElementById('folder-name-input').value = '';
+      selectFolder(ref.key);
+    });
+  }
+
+  function renderFoldersList() {
+    const list = document.getElementById('folders-list');
+    list.innerHTML = '';
+    const keys = Object.keys(folders);
+
+    keys.forEach(id => {
+      const folder = folders[id];
+      const qCount = folder.quizzes ? Object.keys(folder.quizzes).length : 0;
+      const isPermanent = folder.isPermanent || folder.name === "No Folder";
+      
+      const item = document.createElement('div');
+      item.className = `list-item ${id === activeFolderId ? 'active' : ''}`;
+      item.onclick = () => selectFolder(id);
+
+      const deleteBtnHTML = isPermanent 
+        ? `<span style="font-size:11px; color:#64748b; font-weight:bold;">🔒 Default</span>`
+        : `<button class="delete-btn" onclick="event.stopPropagation(); deleteFolder('${id}')">✕</button>`;
+
+      item.innerHTML = `
+        <div>
+          <div class="item-title">📁 ${folder.name}</div>
+          <div style="font-size: 11px; color: #94a3b8;">${qCount} Quizzes</div>
+        </div>
+        ${deleteBtnHTML}`;
+      list.appendChild(item);
+    });
+  }
+
+  function selectFolder(id) {
+    activeFolderId = id;
+    activeQuizId = null;
+    renderFoldersList();
+    document.getElementById('quiz-creator-card').style.display = 'block';
+    document.getElementById('question-creator-card').style.display = 'none';
+    document.getElementById('quiz-edit-card').style.display = 'none';
+    document.getElementById('folder-section-title').innerText = `📝 Quizzes in "${folders[id].name}"`;
+    renderQuizzesList();
+  }
+
+  function deleteFolder(id) {
+    const folder = folders[id];
+    if (folder && (folder.isPermanent || folder.name === "No Folder")) {
+      return alert('"No Folder" is permanent and cannot be deleted!');
+    }
+
+    if (confirm('Delete this folder and all its contained quizzes?')) {
+      db.ref(`users/${currentUser.uid}/folders/${id}`).remove();
+    }
+  }
+
+  /* --- 2. MULTIPLE QUIZZES INSIDE A FOLDER --- */
+  function createQuiz() {
+    if (!activeFolderId) return alert('Select a folder first!');
+    const name = document.getElementById('quiz-name-input').value.trim();
+    if (!name) return alert('Enter quiz title!');
+    const ref = db.ref(`users/${currentUser.uid}/folders/${activeFolderId}/quizzes`).push();
+    ref.set({ name, questions: {} }).then(() => {
+      document.getElementById('quiz-name-input').value = '';
+      selectQuiz(ref.key);
+    });
+  }
+
+  function renderQuizzesList() {
+    const list = document.getElementById('quizzes-list');
+    list.innerHTML = '';
+    const currentFolder = folders[activeFolderId];
+    const quizzes = currentFolder ? currentFolder.quizzes || {} : {};
+    const keys = Object.keys(quizzes);
+
+    if (keys.length === 0) {
+      list.innerHTML = `<div style="color:#64748b; font-size: 12px; text-align: center;">No quizzes in this folder yet</div>`;
+      return;
+    }
+
+    keys.forEach(id => {
+      const quiz = quizzes[id];
+      const count = quiz.questions ? Object.keys(quiz.questions).length : 0;
+      const item = document.createElement('div');
+      item.className = `list-item ${id === activeQuizId ? 'active' : ''}`;
+      item.onclick = () => selectQuiz(id);
+      item.innerHTML = `
+        <div>
+          <div class="item-title">📄 ${quiz.name}</div>
+          <div style="font-size: 11px; color: #94a3b8;">${count} Questions</div>
+        </div>
+        <button class="delete-btn" onclick="event.stopPropagation(); deleteQuiz('${id}')">✕</button>`;
+      list.appendChild(item);
+    });
+  }
+
+  function selectQuiz(id) {
+    activeQuizId = id;
+    renderQuizzesList();
+    const quizName = folders[activeFolderId].quizzes[id].name;
+    document.getElementById('question-creator-card').style.display = 'block';
+    document.getElementById('quiz-edit-card').style.display = 'block';
+    document.getElementById('current-quiz-title').innerText = `Add Questions to "${quizName}"`;
+    document.getElementById('edit-quiz-title-input').value = quizName;
+    renderEditQuestions();
+  }
+
+  function deleteQuiz(id) {
+    if (confirm('Delete this quiz?')) {
+      db.ref(`users/${currentUser.uid}/folders/${activeFolderId}/quizzes/${id}`).remove();
+    }
+  }
+
+  /* --- 3. QUESTION CREATION & VALIDATION --- */
+  function addQuestionToQuiz() {
+    if (!activeFolderId || !activeQuizId) return alert('Select a quiz first!');
     const q = document.getElementById('question').value.trim();
     const optA = document.getElementById('opt-a').value.trim();
     const optB = document.getElementById('opt-b').value.trim();
     const optC = document.getElementById('opt-c').value.trim();
     const optD = document.getElementById('opt-d').value.trim();
-    const correct = document.getElementById('correct-opt').value.trim().toUpperCase();
+    const correctRaw = document.getElementById('correct-opt').value.trim().toUpperCase();
+    const explanation = document.getElementById('explanation').value.trim();
 
-    if (!q || !optA || !optB || !optC || !optD || !correct) {
-      alert('Please fill out all options and correct answer!');
-      return;
+    // STRICT VALIDATION FOR A, B, C, OR D ONLY
+    if (!['A', 'B', 'C', 'D'].includes(correctRaw)) {
+      return alert('Cannot Save The Question');
     }
 
-    const newQuestion = { q, options: { A: optA, B: optB, C: optC, D: optD }, correct };
+    if (!q || !optA || !optB || !optC || !optD) {
+      return alert('Fill out all fields before saving!');
+    }
 
-    db.ref(`users/${currentUser.uid}/questions`).push(newQuestion)
+    const newQ = { q, options: { A: optA, B: optB, C: optC, D: optD }, correct: correctRaw, explanation };
+    db.ref(`users/${currentUser.uid}/folders/${activeFolderId}/quizzes/${activeQuizId}/questions`).push(newQ)
       .then(() => {
+        alert('Question Saved successfully!');
         document.getElementById('question').value = '';
         document.getElementById('opt-a').value = '';
         document.getElementById('opt-b').value = '';
         document.getElementById('opt-c').value = '';
         document.getElementById('opt-d').value = '';
         document.getElementById('correct-opt').value = '';
-      })
-      .catch(err => alert("Error saving question: " + err.message));
+        document.getElementById('explanation').value = '';
+      });
   }
 
-  function updateCount() {
-    document.getElementById('question-count').innerText = `Questions Saved: ${questions.length}`;
+  /* --- 4. EDIT ENTIRE QUIZ SECTION --- */
+  function renderEditQuestions() {
+    const container = document.getElementById('edit-questions-container');
+    container.innerHTML = '';
+
+    if (!activeFolderId || !activeQuizId || !folders[activeFolderId] || !folders[activeFolderId].quizzes[activeQuizId]) return;
+
+    const quiz = folders[activeFolderId].quizzes[activeQuizId];
+    const rawQuestions = quiz.questions || {};
+    const qKeys = Object.keys(rawQuestions);
+
+    if (qKeys.length === 0) {
+      container.innerHTML = `<div style="text-align: center; color: #64748b; font-size: 13px;">No questions created in this quiz yet.</div>`;
+      return;
+    }
+
+    qKeys.forEach((key, index) => {
+      const item = rawQuestions[key];
+      const editCard = document.createElement('div');
+      editCard.className = 'edit-item-card';
+      editCard.innerHTML = `
+        <label>Question ${index + 1}</label>
+        <input type="text" id="edit-q-${key}" value="${item.q}" style="margin-bottom: 10px;">
+        
+        <label>Options</label>
+        <div class="options-grid">
+          <input type="text" id="edit-opt-A-${key}" value="${item.options.A}">
+          <input type="text" id="edit-opt-B-${key}" value="${item.options.B}">
+          <input type="text" id="edit-opt-C-${key}" value="${item.options.C}">
+          <input type="text" id="edit-opt-D-${key}" value="${item.options.D}">
+        </div>
+
+        <label>Correct Choice Letter (Must be A, B, C, or D)</label>
+        <input type="text" id="edit-correct-${key}" value="${item.correct.toUpperCase()}" style="margin-bottom: 10px;">
+
+        <label>Explanation</label>
+        <textarea id="edit-explanation-${key}" style="margin-bottom: 10px;">${item.explanation || ''}</textarea>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="primary-btn" onclick="saveQuestionEdit('${key}')">Save Changes</button>
+          <button class="logout-btn" onclick="deleteQuestion('${key}')">Delete</button>
+        </div>`;
+      container.appendChild(editCard);
+    });
   }
 
-  function clearAllData() {
-    if (confirm('Delete all saved questions from Firebase?')) {
-      db.ref(`users/${currentUser.uid}/questions`).remove();
+  function saveQuizTitle() {
+    const newTitle = document.getElementById('edit-quiz-title-input').value.trim();
+    if (!newTitle) return alert('Title cannot be empty!');
+    db.ref(`users/${currentUser.uid}/folders/${activeFolderId}/quizzes/${activeQuizId}/name`).set(newTitle)
+      .then(() => alert('Quiz title updated!'));
+  }
+
+  function saveQuestionEdit(key) {
+    const q = document.getElementById(`edit-q-${key}`).value.trim();
+    const optA = document.getElementById(`edit-opt-A-${key}`).value.trim();
+    const optB = document.getElementById(`edit-opt-B-${key}`).value.trim();
+    const optC = document.getElementById(`edit-opt-C-${key}`).value.trim();
+    const optD = document.getElementById(`edit-opt-D-${key}`).value.trim();
+    const correctRaw = document.getElementById(`edit-correct-${key}`).value.trim().toUpperCase();
+    const explanation = document.getElementById(`edit-explanation-${key}`).value.trim();
+
+    // STRICT VALIDATION FOR A, B, C, OR D ONLY
+    if (!['A', 'B', 'C', 'D'].includes(correctRaw)) {
+      return alert('Cannot Save The Question');
+    }
+
+    if (!q || !optA || !optB || !optC || !optD) {
+      return alert('Fill out all fields before saving!');
+    }
+
+    const updatedQ = { q, options: { A: optA, B: optB, C: optC, D: optD }, correct: correctRaw, explanation };
+    db.ref(`users/${currentUser.uid}/folders/${activeFolderId}/quizzes/${activeQuizId}/questions/${key}`).set(updatedQ)
+      .then(() => alert('Question updated successfully!'));
+  }
+
+  function deleteQuestion(key) {
+    if (confirm('Delete this question?')) {
+      db.ref(`users/${currentUser.uid}/folders/${activeFolderId}/quizzes/${activeQuizId}/questions/${key}`).remove();
     }
   }
 
-  function saveAndGoToQuiz() {
-    if (questions.length === 0) return alert('Add at least one question first!');
-    document.getElementById('create-section').classList.remove('active');
-    document.getElementById('quiz-section').classList.add('active');
-    buildQuiz();
+  /* --- 5. START QUIZ PLAY MODE --- */
+  function startQuizMode() {
+    if (!activeFolderId || !activeQuizId) return alert('Please select or create a quiz first!');
+    
+    const quiz = folders[activeFolderId].quizzes[activeQuizId];
+    const rawQuestions = quiz.questions || {};
+    const qKeys = Object.keys(rawQuestions);
+
+    if (qKeys.length === 0) return alert('This quiz has no questions! Add at least one question first.');
+
+    document.getElementById('creator-screen').style.display = 'none';
+    document.getElementById('quiz-play-screen').style.display = 'block';
+    renderPlayQuiz();
   }
 
-  function goBackToCreate() {
-    document.getElementById('quiz-section').classList.remove('active');
-    document.getElementById('create-section').classList.add('active');
+  function returnToCreator() {
+    document.getElementById('quiz-play-screen').style.display = 'none';
+    document.getElementById('creator-screen').style.display = 'flex';
   }
 
-  function buildQuiz() {
+  function renderPlayQuiz() {
     userScore = 0;
-    updateScoreDisplay();
-
     const container = document.getElementById('full-quiz-container');
     container.innerHTML = '';
-    
-    questions.forEach((item, qIndex) => {
+
+    const quiz = folders[activeFolderId].quizzes[activeQuizId];
+    const rawQuestions = quiz.questions || {};
+    const qKeys = Object.keys(rawQuestions);
+
+    updateScoreDisplay(qKeys.length);
+
+    qKeys.forEach((key, qIndex) => {
+      const item = rawQuestions[key];
+      const correctLetter = item.correct.toUpperCase();
+      const correctAnswerText = item.options[correctLetter] || correctLetter;
+
       const card = document.createElement('div');
       card.className = 'quiz-card';
       let optionsHTML = '';
-      
-      ['A', 'B', 'C', 'D'].forEach(key => {
+
+      ['A', 'B', 'C', 'D'].forEach(optKey => {
         optionsHTML += `
-          <div class="option-btn" id="opt-btn-${qIndex}-${key}" onclick="selectOption(${qIndex}, '${key}')">
+          <div class="option-btn" id="opt-btn-${qIndex}-${optKey}" onclick="selectOption(${qIndex}, '${optKey}', '${correctLetter}', ${qKeys.length})">
             <div class="radio-circle"></div>
-            <div>${key}. ${item.options[key]}</div>
-            <div class="check-icon" id="check-${qIndex}-${key}" style="display:none;">✓</div>
+            <div>${optKey}. ${item.options[optKey]}</div>
+            <div class="check-icon" id="check-${qIndex}-${optKey}" style="display:none;">✓</div>
           </div>`;
       });
-      
+
       card.innerHTML = `
         <div class="quiz-header">
           <div class="q-number">${qIndex + 1}</div>
           <div class="q-text">${item.q}</div>
           <div class="q-points"><span id="pts-text-${qIndex}">0/1</span><br>pts <span class="pts-badge" id="pts-badge-${qIndex}"></span></div>
         </div>
-        <div>${optionsHTML}</div>`;
+        <div>${optionsHTML}</div>
+        <button class="explanation-btn" id="exp-btn-${qIndex}" onclick="toggleExplanationDisplay(${qIndex})">The Explanation For (${correctAnswerText})</button>
+        <div class="explanation-box" id="exp-box-${qIndex}">${item.explanation ? item.explanation : 'No explanation provided for this question.'}</div>`;
       container.appendChild(card);
     });
   }
 
-  function selectOption(qIndex, selectedKey) {
-    const question = questions[qIndex];
-    const correctKey = question.correct.toUpperCase();
-
-    // Lock all options for this question once answered
+  function selectOption(qIndex, selectedKey, correctKey, totalQ) {
     ['A', 'B', 'C', 'D'].forEach(key => {
       const btn = document.getElementById(`opt-btn-${qIndex}-${key}`);
       btn.onclick = null;
@@ -307,16 +622,13 @@
       userScore++;
       ptsText.innerText = '1/1';
       ptsBadge.style.background = '#22c55e';
-
       selectedBtn.classList.add('selected');
       selectedCheck.style.display = 'flex';
-      selectedCheck.style.color = '#22c55e';
-      selectedCheck.style.borderColor = '#22c55e';
       selectedCheck.innerText = '✓';
+      addQuisCoins(10);
     } else {
       ptsText.innerText = '0/1';
       ptsBadge.style.background = '#ef4444';
-
       selectedBtn.style.background = '#3f1515';
       selectedBtn.style.borderColor = '#ef4444';
       selectedCheck.style.display = 'flex';
@@ -328,17 +640,26 @@
       const correctCheck = document.getElementById(`check-${qIndex}-${correctKey}`);
       correctBtn.classList.add('selected');
       correctCheck.style.display = 'flex';
-      correctCheck.style.color = '#22c55e';
-      correctCheck.style.borderColor = '#22c55e';
       correctCheck.innerText = '✓';
     }
 
-    updateScoreDisplay();
+    const expBtn = document.getElementById(`exp-btn-${qIndex}`);
+    if (expBtn) expBtn.style.display = 'block';
+
+    updateScoreDisplay(totalQ);
   }
 
-  function updateScoreDisplay() {
-    const percent = questions.length > 0 ? Math.round((userScore / questions.length) * 100) : 0;
-    document.getElementById('score-header').innerText = `Total Score: ${userScore} / ${questions.length} pts (${percent}%)`;
+  function toggleExplanationDisplay(qIndex) {
+    const box = document.getElementById(`exp-box-${qIndex}`);
+    if (box) {
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+  }
+
+  function updateScoreDisplay(total) {
+    const quizName = folders[activeFolderId] && folders[activeFolderId].quizzes[activeQuizId] ? folders[activeFolderId].quizzes[activeQuizId].name : '';
+    const percent = total > 0 ? Math.round((userScore / total) * 100) : 0;
+    document.getElementById('score-text').innerText = `${quizName} | Score: ${userScore} / ${total} pts (${percent}%)`;
   }
 </script>
 
