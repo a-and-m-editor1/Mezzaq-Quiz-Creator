@@ -64,7 +64,7 @@
       border-radius: 8px; text-align: center; font-weight: 600; color: #94a3b8; margin-top: 15px;
     }
 
-    /* QUIZ BAR & SCORE HEADER */
+    /* QUIZ SCORE BAR */
     .score-summary {
       background: #0f172a; border: 1px solid #334155;
       border-radius: 12px; padding: 14px 20px; font-size: 16px;
@@ -107,6 +107,11 @@
       align-items: center; justify-content: center; font-size: 11px;
     }
   </style>
+
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -114,7 +119,7 @@
 
   <!-- ACCOUNT BAR -->
   <div class="account-bar">
-    <div id="display-email" class="account-info">Logged in as: ...</div>
+    <div id="display-email" class="account-info">Connecting to Firebase...</div>
     <button class="logout-btn" onclick="logout()">Log Out</button>
   </div>
 
@@ -157,25 +162,48 @@
 </div>
 
 <script>
-  let currentUser = JSON.parse(localStorage.getItem('quiz_user'));
+  // Your Exact Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBKuPKg3YuMzqw0cMAzTtUbeZERbY4UCNM",
+    authDomain: "mezzaq-79803.firebaseapp.com",
+    databaseURL: "https://mezzaq-79803-default-rtdb.firebaseio.com",
+    projectId: "mezzaq-79803",
+    storageBucket: "mezzaq-79803.firebasestorage.app",
+    messagingSenderId: "615491940231",
+    appId: "1:615491940231:web:837decc59171eb6679ed22",
+    measurementId: "G-VVTEHSJBNT"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  let currentUser = null;
   let questions = [];
   let userScore = 0;
-  let answeredCount = 0;
 
-  function initPage() {
-    if (!currentUser || !currentUser.loggedIn) {
+  auth.onAuthStateChanged(user => {
+    if (!user) {
       window.location.href = 'login.html';
       return;
     }
-    document.getElementById('display-email').innerText = `Logged in as: ${currentUser.email}`;
-    const storageKey = `quiz_questions_${currentUser.email}`;
-    questions = JSON.parse(localStorage.getItem(storageKey)) || [];
-    updateCount();
-  }
+    currentUser = user;
+    document.getElementById('display-email').innerText = `Logged in as: ${user.email}`;
+    loadQuestionsFromFirebase();
+  });
 
   function logout() {
-    localStorage.removeItem('quiz_user');
-    window.location.href = 'login.html';
+    auth.signOut().then(() => {
+      window.location.href = 'login.html';
+    });
+  }
+
+  function loadQuestionsFromFirebase() {
+    db.ref(`users/${currentUser.uid}/questions`).on('value', snapshot => {
+      const data = snapshot.val();
+      questions = data ? Object.values(data) : [];
+      updateCount();
+    });
   }
 
   function addQuestion() {
@@ -191,16 +219,18 @@
       return;
     }
 
-    questions.push({ q, options: { A: optA, B: optB, C: optC, D: optD }, correct });
-    localStorage.setItem(`quiz_questions_${currentUser.email}`, JSON.stringify(questions));
+    const newQuestion = { q, options: { A: optA, B: optB, C: optC, D: optD }, correct };
 
-    document.getElementById('question').value = '';
-    document.getElementById('opt-a').value = '';
-    document.getElementById('opt-b').value = '';
-    document.getElementById('opt-c').value = '';
-    document.getElementById('opt-d').value = '';
-    document.getElementById('correct-opt').value = '';
-    updateCount();
+    db.ref(`users/${currentUser.uid}/questions`).push(newQuestion)
+      .then(() => {
+        document.getElementById('question').value = '';
+        document.getElementById('opt-a').value = '';
+        document.getElementById('opt-b').value = '';
+        document.getElementById('opt-c').value = '';
+        document.getElementById('opt-d').value = '';
+        document.getElementById('correct-opt').value = '';
+      })
+      .catch(err => alert("Error saving question: " + err.message));
   }
 
   function updateCount() {
@@ -208,10 +238,8 @@
   }
 
   function clearAllData() {
-    if (confirm('Delete all saved questions?')) {
-      localStorage.removeItem(`quiz_questions_${currentUser.email}`);
-      questions = [];
-      updateCount();
+    if (confirm('Delete all saved questions from Firebase?')) {
+      db.ref(`users/${currentUser.uid}/questions`).remove();
     }
   }
 
@@ -229,7 +257,6 @@
 
   function buildQuiz() {
     userScore = 0;
-    answeredCount = 0;
     updateScoreDisplay();
 
     const container = document.getElementById('full-quiz-container');
@@ -264,7 +291,7 @@
     const question = questions[qIndex];
     const correctKey = question.correct.toUpperCase();
 
-    // Lock all choices for this question
+    // Lock all options for this question once answered
     ['A', 'B', 'C', 'D'].forEach(key => {
       const btn = document.getElementById(`opt-btn-${qIndex}-${key}`);
       btn.onclick = null;
@@ -276,13 +303,10 @@
     const ptsText = document.getElementById(`pts-text-${qIndex}`);
     const ptsBadge = document.getElementById(`pts-badge-${qIndex}`);
 
-    answeredCount++;
-
     if (selectedKey === correctKey) {
-      // CORRECT ANSWER: 1/1 pts + green badge
       userScore++;
       ptsText.innerText = '1/1';
-      ptsBadge.style.background = '#22c55e'; // Green
+      ptsBadge.style.background = '#22c55e';
 
       selectedBtn.classList.add('selected');
       selectedCheck.style.display = 'flex';
@@ -290,9 +314,8 @@
       selectedCheck.style.borderColor = '#22c55e';
       selectedCheck.innerText = '✓';
     } else {
-      // WRONG ANSWER: 0/1 pts + red badge
       ptsText.innerText = '0/1';
-      ptsBadge.style.background = '#ef4444'; // Red
+      ptsBadge.style.background = '#ef4444';
 
       selectedBtn.style.background = '#3f1515';
       selectedBtn.style.borderColor = '#ef4444';
@@ -301,7 +324,6 @@
       selectedCheck.style.borderColor = '#ef4444';
       selectedCheck.innerText = '✕';
 
-      // Highlight the correct answer
       const correctBtn = document.getElementById(`opt-btn-${qIndex}-${correctKey}`);
       const correctCheck = document.getElementById(`check-${qIndex}-${correctKey}`);
       correctBtn.classList.add('selected');
@@ -318,8 +340,6 @@
     const percent = questions.length > 0 ? Math.round((userScore / questions.length) * 100) : 0;
     document.getElementById('score-header').innerText = `Total Score: ${userScore} / ${questions.length} pts (${percent}%)`;
   }
-
-  initPage();
 </script>
 
 </body>
