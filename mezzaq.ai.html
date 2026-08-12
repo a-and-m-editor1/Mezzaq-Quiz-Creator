@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MezzaqAI Assistant</title>
+  
+  <!-- Puter.js SDK (Free Keyless AI) -->
+  <script src="https://js.puter.com/v2/"></script>
+
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      background-color: #0b192c;
+      color: #f8fafc;
+      margin: 0; padding: 25px;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh;
+    }
+    .ai-container {
+      max-width: 700px; width: 100%;
+      background: #1e293b; border: 1px solid #a855f7;
+      border-radius: 20px; padding: 25px;
+      box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+      display: flex; flex-direction: column; gap: 15px;
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #334155; padding-bottom: 15px;
+    }
+    .back-btn {
+      background: #334155; color: #f8fafc; border: none;
+      padding: 8px 16px; border-radius: 8px; font-weight: bold;
+      cursor: pointer; text-decoration: none; font-size: 13px;
+    }
+    .title { font-size: 20px; font-weight: bold; color: #c084fc; display: flex; align-items: center; gap: 8px; }
+    .status-badge { background: #065f46; color: #34d399; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 12px; }
+
+    .chat-box {
+      background: #0f172a; border: 1px solid #334155;
+      border-radius: 12px; padding: 16px; height: 420px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .msg { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+    .msg.user { background: #1e3a8a; color: #e0f2fe; align-self: flex-end; max-width: 80%; }
+    .msg.bot { background: #3b0764; color: #f3e8ff; border: 1px solid #7e22ce; align-self: flex-start; max-width: 80%; }
+
+    .form-group { margin-bottom: 5px; }
+    textarea {
+      width: 100%; padding: 12px; border: 1px solid #334155;
+      border-radius: 10px; font-size: 14px; background: #0f172a; color: #fff;
+      resize: vertical; min-height: 75px;
+    }
+
+    button.ai-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #a855f7, #7c3aed);
+      color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: bold;
+      cursor: pointer; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+    }
+    button.ai-btn:hover { background: linear-gradient(135deg, #9333ea, #6d28d9); }
+    button.ai-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<div class="ai-container">
+  <div class="header">
+    <div>
+      <div class="title">🤖 MezzaqAI Assistant</div>
+      <span class="status-badge">🟢 Ready (No API Key Required)</span>
+    </div>
+    <a href="index.html" class="back-btn">← Back to Quizzes</a>
+  </div>
+
+  <div class="chat-box" id="chat-box">
+    <div class="msg bot">Hello! I am <b>MezzaqAI</b>. Ask me study questions, explanations, or ask me to help generate quiz questions!</div>
+  </div>
+
+  <div class="form-group">
+    <textarea id="user-input" placeholder="Ask MezzaqAI anything..."></textarea>
+  </div>
+
+  <button class="ai-btn" id="send-btn" onclick="askMezzaqAI()">✨ Send Prompt</button>
+</div>
+
+<script>
+  async function askMezzaqAI() {
+    const inputField = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const prompt = inputField.value.trim();
+    const chatBox = document.getElementById('chat-box');
+
+    if (!prompt) return alert('Please enter a question or prompt!');
+
+    // Append User Message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg user';
+    userMsg.innerText = prompt;
+    chatBox.appendChild(userMsg);
+    inputField.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Append Bot Loading State
+    const botMsg = document.createElement('div');
+    botMsg.className = 'msg bot';
+    botMsg.innerText = 'MezzaqAI is thinking...';
+    chatBox.appendChild(botMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Disable button while processing
+    sendBtn.disabled = true;
+
+    try {
+      const systemContext = "You are MezzaqAI, a friendly and concise study assistant for students and creators. Answer clearly:";
+      const fullPrompt = `${systemContext}\n\n${prompt}`;
+
+      // Call Puter AI (Free client-side AI)
+      const response = await puter.ai.chat(fullPrompt);
+
+      if (response) {
+        botMsg.innerText = response.toString().trim();
+      } else {
+        botMsg.innerText = 'Could not process request. Please try again.';
+      }
+    } catch (err) {
+      console.error(err);
+      botMsg.innerText = 'An error occurred while generating a response. Please try again.';
+    } finally {
+      sendBtn.disabled = false;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  // Support Ctrl+Enter or Shift+Enter submission
+  document.getElementById('user-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      askMezzaqAI();
+    }
+  });
+</script>
+
+</body>
+</html>
