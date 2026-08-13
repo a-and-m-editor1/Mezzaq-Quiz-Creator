@@ -8,10 +8,19 @@
   <!-- Puter.js SDK (Free Keyless AI) -->
   <script src="https://js.puter.com/v2/"></script>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body {
       background-color: #0b192c;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      background-attachment: fixed !important;
       color: #f8fafc;
       margin: 0; padding: 25px;
       display: flex; justify-content: center; align-items: center;
@@ -19,25 +28,37 @@
     }
     .ai-container {
       max-width: 700px; width: 100%;
-      background: #1e293b; border: 1px solid #a855f7;
+      background: rgba(30, 41, 59, 0.92); border: 1px solid #a855f7;
       border-radius: 20px; padding: 25px;
       box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
       display: flex; flex-direction: column; gap: 15px;
+      backdrop-filter: blur(10px);
     }
     .header {
       display: flex; justify-content: space-between; align-items: center;
       border-bottom: 1px solid #334155; padding-bottom: 15px;
     }
+    .top-actions { display: flex; gap: 8px; align-items: center; }
     .back-btn {
       background: #334155; color: #f8fafc; border: none;
-      padding: 8px 16px; border-radius: 8px; font-weight: bold;
+      padding: 8px 14px; border-radius: 8px; font-weight: bold;
       cursor: pointer; text-decoration: none; font-size: 13px;
     }
+    .save-btn {
+      background: #22c55e; color: white; border: none;
+      padding: 8px 12px; border-radius: 8px; font-weight: bold;
+      cursor: pointer; font-size: 12px; transition: background 0.2s;
+    }
+    .save-btn:hover { background: #16a34a; }
+    .clear-btn {
+      background: #ef4444; color: white; border: none;
+      padding: 8px 12px; border-radius: 8px; font-weight: bold;
+      cursor: pointer; font-size: 12px;
+    }
     .title { font-size: 20px; font-weight: bold; color: #c084fc; display: flex; align-items: center; gap: 8px; }
-    .status-badge { background: #065f46; color: #34d399; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 12px; }
 
     .chat-box {
-      background: #0f172a; border: 1px solid #334155;
+      background: rgba(15, 23, 42, 0.90); border: 1px solid #334155;
       border-radius: 12px; padding: 16px; height: 420px; overflow-y: auto;
       display: flex; flex-direction: column; gap: 12px;
     }
@@ -65,11 +86,12 @@
 
 <div class="ai-container">
   <div class="header">
-    <div>
-      <div class="title">🤖 MezzaqAI Assistant</div>
-      <span class="status-badge">🟢 Ready (No API Key Required)</span>
+    <div class="title">🤖 MezzaqAI Assistant</div>
+    <div class="top-actions">
+      <button class="save-btn" onclick="saveChatToFirebase()">💾 Save Chat With MezzaqAI</button>
+      <button class="clear-btn" onclick="clearChatHistory()">🗑️ Clear</button>
+      <a href="index.html" class="back-btn">← Back</a>
     </div>
-    <a href="index.html" class="back-btn">← Back to Quizzes</a>
   </div>
 
   <div class="chat-box" id="chat-box">
@@ -84,6 +106,102 @@
 </div>
 
 <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBKuPKg3YuMzqw0cMAzTtUbeZERbY4UCNM",
+    authDomain: "mezzaq-79803.firebaseapp.com",
+    databaseURL: "https://mezzaq-79803-default-rtdb.firebaseio.com",
+    projectId: "mezzaq-79803",
+    storageBucket: "mezzaq-79803.firebasestorage.app",
+    messagingSenderId: "615491940231",
+    appId: "1:615491940231:web:837decc59171eb6679ed22",
+    measurementId: "G-VVTEHSJBNT"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  let currentUser = null;
+  let currentChatSession = [];
+
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+    currentUser = user;
+    loadSavedChatHistory();
+    loadSavedBackground();
+  });
+
+  /* Sync Background From LocalStorage */
+  function loadSavedBackground() {
+    const bgType = localStorage.getItem('mezzaq_bg_type');
+    const bgVal = localStorage.getItem('mezzaq_bg_val');
+
+    if (bgType === 'custom' && bgVal) {
+      document.body.style.backgroundImage = `url(${bgVal})`;
+    } else if (bgType === 'preset' && bgVal) {
+      document.body.style.background = bgVal;
+    } else {
+      document.body.style.background = '#0b192c';
+    }
+  }
+
+  function formatMarkdown(text) {
+    if (!text) return '';
+    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    formatted = formatted.replace(/\n/g, '<br>');
+    return formatted;
+  }
+
+  function loadSavedChatHistory() {
+    db.ref(`users/${currentUser.uid}/ai_chats`).once('value', snapshot => {
+      const messages = snapshot.val();
+      const chatBox = document.getElementById('chat-box');
+
+      if (messages) {
+        chatBox.innerHTML = '';
+        currentChatSession = [];
+        
+        Object.keys(messages).forEach(key => {
+          const msgData = messages[key];
+          currentChatSession.push(msgData);
+          appendMessageUI(msgData.sender, msgData.text);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    });
+  }
+
+  function appendMessageUI(sender, rawText) {
+    const chatBox = document.getElementById('chat-box');
+    const msg = document.createElement('div');
+    msg.className = `msg ${sender}`;
+    msg.innerHTML = formatMarkdown(rawText);
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function saveChatToFirebase() {
+    if (!currentUser) return alert('User not authenticated!');
+    if (currentChatSession.length === 0) return alert('No chat messages to save!');
+
+    db.ref(`users/${currentUser.uid}/ai_chats`).set(currentChatSession)
+      .then(() => alert('Chat saved successfully!'))
+      .catch(err => alert('Failed to save chat: ' + err.message));
+  }
+
+  function clearChatHistory() {
+    if (confirm('Are you sure you want to delete your saved chat history?')) {
+      currentChatSession = [];
+      db.ref(`users/${currentUser.uid}/ai_chats`).remove().then(() => {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = '<div class="msg bot">Chat cleared! Ask me anything to start a new chat.</div>';
+      });
+    }
+  }
+
   async function askMezzaqAI() {
     const inputField = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
@@ -92,33 +210,29 @@
 
     if (!prompt) return alert('Please enter a question or prompt!');
 
-    // Append User Message
-    const userMsg = document.createElement('div');
-    userMsg.className = 'msg user';
-    userMsg.innerText = prompt;
-    chatBox.appendChild(userMsg);
-    inputField.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight;
+    appendMessageUI('user', prompt);
+    currentChatSession.push({ sender: 'user', text: prompt });
 
-    // Append Bot Loading State
+    inputField.value = '';
+
     const botMsg = document.createElement('div');
     botMsg.className = 'msg bot';
     botMsg.innerText = 'MezzaqAI is thinking...';
     chatBox.appendChild(botMsg);
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // Disable button while processing
     sendBtn.disabled = true;
 
     try {
       const systemContext = "You are MezzaqAI, a friendly and concise study assistant for students and creators. Answer clearly:";
       const fullPrompt = `${systemContext}\n\n${prompt}`;
 
-      // Call Puter AI (Free client-side AI)
       const response = await puter.ai.chat(fullPrompt);
 
       if (response) {
-        botMsg.innerText = response.toString().trim();
+        const responseText = response.toString().trim();
+        botMsg.innerHTML = formatMarkdown(responseText);
+        currentChatSession.push({ sender: 'bot', text: responseText });
       } else {
         botMsg.innerText = 'Could not process request. Please try again.';
       }
@@ -131,7 +245,6 @@
     }
   }
 
-  // Support Ctrl+Enter or Shift+Enter submission
   document.getElementById('user-input').addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
