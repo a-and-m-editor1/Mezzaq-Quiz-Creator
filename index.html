@@ -4,23 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mezzaq Quiz Creator</title>
+  
+  <!-- Cropper.js CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    
     body {
       background-color: #0b192c;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      background-attachment: fixed !important;
       color: #f8fafc;
       margin: 0; padding: 25px;
       display: flex; justify-content: center;
       position: relative;
       min-height: 100vh;
+      transition: background 0.3s ease;
     }
     .main-wrapper { max-width: 1000px; width: 100%; }
 
     /* TOP BAR & QUISCOINS WALLET */
     .account-bar {
-      background: #1e293b; border: 1px solid #334155;
+      background: rgba(30, 41, 59, 0.92); border: 1px solid #334155;
       border-radius: 12px; padding: 16px 20px; display: flex;
       justify-content: space-between; align-items: center; margin-bottom: 25px;
+      backdrop-filter: blur(10px);
     }
     .account-info { font-size: 15px; font-weight: 600; color: #94a3b8; display: flex; align-items: center; gap: 15px; }
     .coin-badge { background: #0f172a; border: 1px solid #eab308; color: #eab308; padding: 6px 12px; border-radius: 20px; font-weight: bold; }
@@ -34,9 +45,10 @@
       max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;
     }
     .form-card {
-      background: #1e293b; border: 1px solid #334155;
+      background: rgba(30, 41, 59, 0.90); border: 1px solid #334155;
       border-radius: 16px; padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
     }
 
     .form-group { margin-bottom: 12px; }
@@ -47,6 +59,108 @@
     }
     textarea { resize: vertical; min-height: 65px; }
     .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    /* FLOATING BOTTOM PENCIL BUTTON & MODAL */
+    .customize-pencil-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 26px;
+      cursor: pointer;
+      z-index: 1000;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .customize-pencil-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.7);
+    }
+
+    .bg-customizer-panel {
+      position: fixed;
+      bottom: 105px;
+      left: 30px;
+      width: 320px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #3b82f6;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bg-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .bg-card {
+      height: 45px;
+      border-radius: 8px;
+      border: 2px solid #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    .bg-card.active { border-color: #22c55e; }
+
+    /* CROP MODAL STYLES */
+    .crop-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 2000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(8px);
+    }
+    .crop-modal-box {
+      background: #1e293b;
+      border: 1px solid #3b82f6;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 650px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+    .crop-container {
+      width: 100%;
+      max-height: 400px;
+      background: #0f172a;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    .crop-container img {
+      max-width: 100%;
+      display: block;
+    }
+    .crop-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
 
     /* ITEM LISTS */
     .list-item {
@@ -71,8 +185,8 @@
       position: fixed;
       bottom: 30px;
       right: 30px;
-      width: 65px;
-      height: 65px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       background: linear-gradient(135deg, #a855f7, #6366f1);
       box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
@@ -80,56 +194,25 @@
       justify-content: center;
       align-items: center;
       color: white;
-      font-size: 28px;
+      font-size: 26px;
       cursor: pointer;
       text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
       z-index: 1000;
-    }
-    .ai-teleport-icon:hover {
-      transform: scale(1.1);
-      box-shadow: 0 10px 30px rgba(168, 85, 247, 0.7);
-    }
-    .ai-teleport-tooltip {
-      position: fixed;
-      bottom: 105px;
-      right: 25px;
-      background: #1e293b;
-      border: 1px solid #a855f7;
-      color: #f3e8ff;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      pointer-events: none;
-    }
-
-    /* EXPLANATION BUTTON & BOX STYLES */
-    .explanation-btn {
-      background: #0284c7; color: #fff; border: none;
-      padding: 10px 16px; border-radius: 8px; font-weight: bold;
-      cursor: pointer; font-size: 13px; margin-top: 10px; display: none;
-      transition: background 0.2s;
-    }
-    .explanation-btn:hover { background: #0369a1; }
-    .explanation-box {
-      background: #0f172a; border: 1px solid #0284c7;
-      border-radius: 10px; padding: 14px; margin-top: 10px;
-      font-size: 14px; color: #e0f2fe; display: none; line-height: 1.5;
     }
 
     /* PLAY MODE QUIZ DISPLAY */
     .score-summary {
-      background: #1e293b; border: 1px solid #334155;
+      background: rgba(30, 41, 59, 0.95); border: 1px solid #334155;
       border-radius: 12px; padding: 16px 20px; font-size: 18px;
       font-weight: 600; color: #38bdf8; text-align: center; margin-bottom: 25px;
       display: flex; justify-content: space-between; align-items: center;
+      backdrop-filter: blur(8px);
     }
     .quiz-card {
-      background: #1e2d42; border: 1px solid #2d3f56;
+      background: rgba(30, 45, 66, 0.95); border: 1px solid #2d3f56;
       border-radius: 16px; padding: 24px; margin-bottom: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2); position: relative;
+      backdrop-filter: blur(8px);
     }
     .quiz-header { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 20px; }
     .q-number {
@@ -154,6 +237,9 @@
 
     .edit-item-card { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
   </style>
+
+  <!-- Cropper.js JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
   <!-- Firebase Compatibility SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -255,8 +341,42 @@
 
 </div>
 
+<!-- BOTTOM LEFT PENCIL CUSTOMIZER ICON & POPUP -->
+<div class="customize-pencil-btn" onclick="toggleCustomizerPanel()" title="Customize Background">✏️</div>
+
+<div class="bg-customizer-panel" id="customizer-panel">
+  <div style="font-weight: bold; color: #38bdf8; font-size: 14px; text-align: center;">🎨 Customize Background</div>
+  
+  <div>
+    <label style="font-size: 11px;">📁 Upload & Crop Image</label>
+    <input type="file" id="bg-file-input" accept="image/*" style="background:#0f172a; padding:6px; border-radius:6px; width:100%; border:1px solid #334155; color:#fff; font-size: 11px;" onchange="handleImageSelection(event)">
+  </div>
+
+  <label style="font-size: 11px;">🖼️ Preset Backgrounds</label>
+  <div class="bg-grid">
+    <div class="bg-card" id="tmpl-1" style="background: #0b192c;" onclick="applyPresetBackground(1, '#0b192c')">Navy</div>
+    <div class="bg-card" id="tmpl-2" style="background: radial-gradient(circle at center, #2e1065, #090514);" onclick="applyPresetBackground(2, 'radial-gradient(circle at center, #2e1065, #090514)')">Violet</div>
+    <div class="bg-card" id="tmpl-3" style="background: linear-gradient(135deg, #064e3b, #022c22);" onclick="applyPresetBackground(3, 'linear-gradient(135deg, #064e3b, #022c22)')">Emerald</div>
+    <div class="bg-card" id="tmpl-4" style="background: linear-gradient(135deg, #451a03, #180e04);" onclick="applyPresetBackground(4, 'linear-gradient(135deg, #451a03, #180e04)')">Sunset</div>
+    <div class="bg-card" id="tmpl-5" style="background: #030712;" onclick="applyPresetBackground(5, '#030712')">Slate</div>
+  </div>
+</div>
+
+<!-- FULLSCREEN CROPPER MODAL -->
+<div class="crop-modal-overlay" id="crop-modal">
+  <div class="crop-modal-box">
+    <h3 style="margin:0; text-align:center; color:#38bdf8; font-size: 16px;">✂️ Crop Your Wallpaper</h3>
+    <div class="crop-container">
+      <img id="crop-image-preview" src="">
+    </div>
+    <div class="crop-actions">
+      <button class="back-btn" onclick="cancelCrop()">Cancel</button>
+      <button class="primary-btn" onclick="saveCroppedImage()">Save & Apply Background</button>
+    </div>
+  </div>
+</div>
+
 <!-- FLOATING MEZZAQ AI TELEPORT BUTTON -->
-<div class="ai-teleport-tooltip">MezzaqAI</div>
 <a href="mezzaq.ai.html" class="ai-teleport-icon" title="Ask MezzaqAI">🤖</a>
 
 <script>
@@ -281,6 +401,36 @@
   let activeQuizId = null;
   let userScore = 0;
   let userQuisCoins = 0;
+  let cropperInstance = null;
+
+  /* INDEXEDDB CONTROLLER FOR LARGE IMAGES */
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('mezzaq_bg_db', 1);
+      request.onupgradeneeded = e => {
+        e.target.result.createObjectStore('bg_store');
+      };
+      request.onsuccess = e => resolve(e.target.result);
+      request.onerror = e => reject(e);
+    });
+  }
+
+  async function saveImageToDB(blob) {
+    const db = await openDB();
+    const tx = db.transaction('bg_store', 'readwrite');
+    tx.objectStore('bg_store').put(blob, 'custom_bg');
+    localStorage.setItem('mezzaq_bg_type', 'custom');
+  }
+
+  async function getImageFromDB() {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('bg_store', 'readonly');
+      const req = tx.objectStore('bg_store').get('custom_bg');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+  }
 
   auth.onAuthStateChanged(user => {
     if (!user) {
@@ -291,10 +441,108 @@
     document.getElementById('display-email').innerText = `Logged in as: ${user.email}`;
     loadUserData();
     ensureDefaultNoFolder();
+    loadSavedBackground();
   });
 
   function logout() {
     auth.signOut().then(() => window.location.href = 'login.html');
+  }
+
+  /* --- CROPPER & BACKGROUND CUSTOMIZER LOGIC --- */
+  function toggleCustomizerPanel() {
+    const panel = document.getElementById('customizer-panel');
+    panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function handleImageSelection(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imgElem = document.getElementById('crop-image-preview');
+      imgElem.src = e.target.result;
+      document.getElementById('crop-modal').style.display = 'flex';
+
+      if (cropperInstance) cropperInstance.destroy();
+
+      cropperInstance = new Cropper(imgElem, {
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 0.9,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function cancelCrop() {
+    document.getElementById('crop-modal').style.display = 'none';
+    if (cropperInstance) cropperInstance.destroy();
+    document.getElementById('bg-file-input').value = '';
+  }
+
+  function saveCroppedImage() {
+    if (!cropperInstance) return;
+
+    const canvas = cropperInstance.getCroppedCanvas({
+      maxWidth: 1920,
+      maxHeight: 1080
+    });
+
+    canvas.toBlob(async (blob) => {
+      await saveImageToDB(blob);
+      const imageUrl = URL.createObjectURL(blob);
+      document.body.style.background = 'none';
+      document.body.style.backgroundImage = `url(${imageUrl})`;
+
+      document.querySelectorAll('.bg-card').forEach(card => card.classList.remove('active'));
+      cancelCrop();
+      toggleCustomizerPanel();
+    }, 'image/jpeg', 0.9);
+  }
+
+  async function applyPresetBackground(id, bgValue) {
+    document.body.style.backgroundImage = 'none';
+    document.body.style.background = bgValue;
+    
+    document.querySelectorAll('.bg-card').forEach(card => card.classList.remove('active'));
+    if (id) {
+      const activeCard = document.getElementById(`tmpl-${id}`);
+      if (activeCard) activeCard.classList.add('active');
+    }
+
+    localStorage.setItem('mezzaq_bg_type', 'preset');
+    localStorage.setItem('mezzaq_bg_val', bgValue);
+    localStorage.setItem('mezzaq_bg_id', id);
+  }
+
+  async function loadSavedBackground() {
+    const bgType = localStorage.getItem('mezzaq_bg_type');
+    const bgVal = localStorage.getItem('mezzaq_bg_val');
+    const bgId = localStorage.getItem('mezzaq_bg_id');
+
+    if (bgType === 'custom') {
+      const fileBlob = await getImageFromDB();
+      if (fileBlob) {
+        const imageUrl = URL.createObjectURL(fileBlob);
+        document.body.style.background = 'none';
+        document.body.style.backgroundImage = `url(${imageUrl})`;
+        return;
+      }
+    }
+    
+    if (bgType === 'preset' && bgVal) {
+      applyPresetBackground(bgId, bgVal);
+    } else {
+      applyPresetBackground(1, '#0b192c');
+    }
   }
 
   function loadUserData() {
@@ -353,7 +601,7 @@
     });
   }
 
-  /* --- 1. FOLDER MANAGEMENT --- */
+  /* --- FOLDER & QUIZ MANAGEMENT --- */
   function createFolder() {
     const name = document.getElementById('folder-name-input').value.trim();
     if (!name) return alert('Enter a folder name!');
@@ -416,7 +664,6 @@
     }
   }
 
-  /* --- 2. MULTIPLE QUIZZES INSIDE A FOLDER --- */
   function createQuiz() {
     if (!activeFolderId) return alert('Select a folder first!');
     const name = document.getElementById('quiz-name-input').value.trim();
@@ -473,7 +720,6 @@
     }
   }
 
-  /* --- 3. QUESTION CREATION & VALIDATION --- */
   function addQuestionToQuiz() {
     if (!activeFolderId || !activeQuizId) return alert('Select a quiz first!');
     const q = document.getElementById('question').value.trim();
@@ -506,7 +752,6 @@
       });
   }
 
-  /* --- 4. EDIT ENTIRE QUIZ SECTION --- */
   function renderEditQuestions() {
     const container = document.getElementById('edit-questions-container');
     container.innerHTML = '';
@@ -587,7 +832,6 @@
     }
   }
 
-  /* --- 5. START QUIZ PLAY MODE --- */
   function startQuizMode() {
     if (!activeFolderId || !activeQuizId) return alert('Please select or create a quiz first!');
     
